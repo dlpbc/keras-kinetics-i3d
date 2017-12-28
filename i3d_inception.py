@@ -37,18 +37,18 @@ WEIGHTS_NAME = ['rgb_kinetics_only', 'flow_kinetics_only', 'rgb_imagenet_and_kin
 
 # path to pretrained models with top (classification layer)
 WEIGHTS_PATH = {
-    'rgb_kinetics_only' : './keras_pretrained_weights/rgb_kinetics_only/rgb_inception_i3d_tf_dim_ordering_tf_kernels.h5',
-    'flow_kinetics_only' : './keras_pretrained_weights/flow_kinetics_only/flow_inception_i3d_tf_dim_ordering_tf_kernels.h5',
-    'rgb_imagenet_and_kinetics' : './keras_pretrained_weights/rgb_imagenet_and_kinetics/rgb_inception_i3d_tf_dim_ordering_tf_kernels.h5',
-    'flow_imagenet_and_kinetics' : './keras_pretrained_weights/flow_imagenet_and_kinetics/flow_inception_i3d_tf_dim_ordering_tf_kernels.h5',
+    'rgb_kinetics_only' : 'https://github.com/dlpbc/keras-kinetics-i3d/releases/download/v0.1/rgb_inception_i3d_kinetics_only_tf_dim_ordering_tf_kernels.h5',
+    'flow_kinetics_only' : 'https://github.com/dlpbc/keras-kinetics-i3d/releases/download/v0.1/flow_inception_i3d_kinetics_only_tf_dim_ordering_tf_kernels.h5',
+    'rgb_imagenet_and_kinetics' : 'https://github.com/dlpbc/keras-kinetics-i3d/releases/download/v0.1/rgb_inception_i3d_imagenet_and_kinetics_tf_dim_ordering_tf_kernels.h5',
+    'flow_imagenet_and_kinetics' : 'https://github.com/dlpbc/keras-kinetics-i3d/releases/download/v0.1/flow_inception_i3d_imagenet_and_kinetics_tf_dim_ordering_tf_kernels.h5',
 }
 
 # path to pretrained models with no top (no classification layer)
 WEIGHTS_PATH_NO_TOP = {
-    'rgb_kinetics_only' : './keras_pretrained_weights_no_top/rgb_kinetics_only/rgb_inception_i3d_tf_dim_ordering_tf_kernels_notop.h5',
-    'flow_kinetics_only' : './keras_pretrained_weights_no_top/flow_kinetics_only/flow_inception_i3d_tf_dim_ordering_tf_kernels_notop.h5',
-    'rgb_imagenet_and_kinetics' : './keras_pretrained_weights_no_top/rgb_imagenet_and_kinetics/rgb_inception_i3d_tf_dim_ordering_tf_kernels_notop.h5',
-    'flow_imagenet_and_kinetics' : './keras_pretrained_weights_no_top/flow_imagenet_and_kinetics/flow_inception_i3d_tf_dim_ordering_tf_kernels_notop.h5',
+    'rgb_kinetics_only' : 'https://github.com/dlpbc/keras-kinetics-i3d/releases/download/v0.1/rgb_inception_i3d_kinetics_only_tf_dim_ordering_tf_kernels_no_top.h5',
+    'flow_kinetics_only' : 'https://github.com/dlpbc/keras-kinetics-i3d/releases/download/v0.1/flow_inception_i3d_kinetics_only_tf_dim_ordering_tf_kernels_no_top.h5',
+    'rgb_imagenet_and_kinetics' : 'https://github.com/dlpbc/keras-kinetics-i3d/releases/download/v0.1/rgb_inception_i3d_imagenet_and_kinetics_tf_dim_ordering_tf_kernels_no_top.h5',
+    'flow_imagenet_and_kinetics' : 'https://github.com/dlpbc/keras-kinetics-i3d/releases/download/v0.1/flow_inception_i3d_imagenet_and_kinetics_tf_dim_ordering_tf_kernels_no_top.h5',
 }
 
 
@@ -393,27 +393,41 @@ def Inception_Inflated3d(include_top=True,
     if weights in WEIGHTS_NAME:
         if weights == WEIGHTS_NAME[0]:   # rgb_kinetics_only
             if include_top:
-                model.load_weights(WEIGHTS_PATH['rgb_kinetics_only'])
+                weights_url = WEIGHTS_PATH['rgb_kinetics_only']
+                model_name = 'i3d_rgb_kinetics_only.h5'
             else:
-                model.load_weights(WEIGHTS_PATH_NO_TOP['rgb_kinetics_only'])
-
+                weights_url = WEIGHTS_PATH_NO_TOP['rgb_kinetics_only']
+                model_name = 'i3d_rgb_kinetics_only_no_top.h5'
+               
         elif weights == WEIGHTS_NAME[1]: # flow_kinetics_only
             if include_top:
-                model.load_weights(WEIGHTS_PATH['flow_kinetics_only'])
+                weights_url = WEIGHTS_PATH['flow_kinetics_only']
+                model_name = 'i3d_flow_kinetics_only.h5'
             else:
-                model.load_weights(WEIGHTS_PATH_NO_TOP['flow_kinetics_only'])
-
+                weights_url = WEIGHTS_PATH_NO_TOP['flow_kinetics_only']
+                model_name = 'i3d_flow_kinetics_only_no_top.h5'
+               
         elif weights == WEIGHTS_NAME[2]: # rgb_imagenet_and_kinetics
             if include_top:
-                model.load_weights(WEIGHTS_PATH['rgb_imagenet_and_kinetics'])
+                weights_url = WEIGHTS_PATH['rgb_imagenet_and_kinetics']
+                model_name = 'i3d_rgb_imagenet_and_kinetics.h5'
             else:
-                model.load_weights(WEIGHTS_PATH_NO_TOP['rgb_imagenet_and_kinetics'])
+                weights_url = WEIGHTS_PATH_NO_TOP['rgb_imagenet_and_kinetics']
+                model_name = 'i3d_rgb_imagenet_and_kinetics_no_top.h5'
 
         elif weights == WEIGHTS_NAME[3]: # flow_imagenet_and_kinetics
             if include_top:
-                model.load_weights(WEIGHTS_PATH['flow_imagenet_and_kinetics'])
+                weights_url = WEIGHTS_PATH['flow_imagenet_and_kinetics']
+                model_name = 'i3d_flow_imagenet_and_kinetics.h5'
             else:
-                model.load_weights(WEIGHTS_PATH_NO_TOP['flow_imagenet_and_kinetics'])
+                weights_url = WEIGHTS_PATH_NO_TOP['flow_imagenet_and_kinetics']
+                model_name = 'i3d_flow_imagenet_and_kinetics_no_top.h5'
+        
+        downloaded_weights_path = get_file(model_name,
+                                           weights_url,
+                                           cache_subdir='models')
+        
+        model.load_weights(downloaded_weights_path)
 
 
         if K.backend() == 'theano':
