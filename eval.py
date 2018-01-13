@@ -1,6 +1,6 @@
 '''
-Loads pretrained model of I3d Inception architecture for the paper: ''
-Evaluates a RGB and Flow sample similar to the paper's github repo: ''
+Loads pretrained model of I3d Inception architecture for the paper: 'https://arxiv.org/abs/1705.07750'
+Evaluates a RGB and Flow sample similar to the paper's github repo: 'https://github.com/deepmind/kinetics-i3d'
 '''
 
 import numpy as np
