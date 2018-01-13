@@ -1,19 +1,21 @@
 # keras-kinetics-i3d
-Keras implementation of inflated 3d from Quo Vardis paper + weights
+Keras implementation (including pretrained weights) of Inflated 3D Inception architecture reported in the paper [Quo Vadis, Action Recognition? A New Model and the Kinetics Dataset](https://arxiv.org/abs/1705.07750).
+
+See original implementation by the authors. [repository](https://github.com/deepmind/kinetics-i3d)
 
 # Usage
 ```
-python main.py
+python eval.py
 
 or
 
 [For help]
-python main.py -h
+python eval.py -h
 ```
 
 # Requirements
 - Keras
-- Tensorflow (tested) or Theano (note tested) or CNTK (not tested)
+- Keras Backend: Tensorflow (tested) or Theano (not tested) or CNTK (not tested)
 - h5py
 
 # License
