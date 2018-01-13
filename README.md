@@ -1,7 +1,7 @@
 # keras-kinetics-i3d
 Keras implementation (including pretrained weights) of Inflated 3D Inception architecture reported in the paper [Quo Vadis, Action Recognition? A New Model and the Kinetics Dataset](https://arxiv.org/abs/1705.07750).
 
-See original implementation by the authors. [Repository](https://github.com/deepmind/kinetics-i3d)
+Original implementation by the authors can be found in this [repository](https://github.com/deepmind/kinetics-i3d).
 
 # Sample Data (for Evaluation)
 Similar to the original implementation, we evaluate the keras models using the RGB sample and Optical Flow sample (processed from video data) provided in the repository of the authors (see the **data/** directory). Details about the [preprocessing techniques](https://github.com/deepmind/kinetics-i3d#sample-data-and-preprocessing) applied to the data are specified in the authors' repository.
