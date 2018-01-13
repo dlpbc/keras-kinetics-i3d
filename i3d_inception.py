@@ -37,19 +37,136 @@ WEIGHTS_NAME = ['rgb_kinetics_only', 'flow_kinetics_only', 'rgb_imagenet_and_kin
 
 # path to pretrained models with top (classification layer)
 WEIGHTS_PATH = {
-    'rgb_kinetics_only' : 'https://github.com/dlpbc/keras-kinetics-i3d/releases/download/v0.1/rgb_inception_i3d_kinetics_only_tf_dim_ordering_tf_kernels.h5',
-    'flow_kinetics_only' : 'https://github.com/dlpbc/keras-kinetics-i3d/releases/download/v0.1/flow_inception_i3d_kinetics_only_tf_dim_ordering_tf_kernels.h5',
-    'rgb_imagenet_and_kinetics' : 'https://github.com/dlpbc/keras-kinetics-i3d/releases/download/v0.1/rgb_inception_i3d_imagenet_and_kinetics_tf_dim_ordering_tf_kernels.h5',
-    'flow_imagenet_and_kinetics' : 'https://github.com/dlpbc/keras-kinetics-i3d/releases/download/v0.1/flow_inception_i3d_imagenet_and_kinetics_tf_dim_ordering_tf_kernels.h5',
+    'rgb_kinetics_only' : 'https://github.com/dlpbc/keras-kinetics-i3d/releases/download/v0.2/rgb_inception_i3d_kinetics_only_tf_dim_ordering_tf_kernels.h5',
+    'flow_kinetics_only' : 'https://github.com/dlpbc/keras-kinetics-i3d/releases/download/v0.2/flow_inception_i3d_kinetics_only_tf_dim_ordering_tf_kernels.h5',
+    'rgb_imagenet_and_kinetics' : 'https://github.com/dlpbc/keras-kinetics-i3d/releases/download/v0.2/rgb_inception_i3d_imagenet_and_kinetics_tf_dim_ordering_tf_kernels.h5',
+    'flow_imagenet_and_kinetics' : 'https://github.com/dlpbc/keras-kinetics-i3d/releases/download/v0.2/flow_inception_i3d_imagenet_and_kinetics_tf_dim_ordering_tf_kernels.h5'
 }
 
 # path to pretrained models with no top (no classification layer)
 WEIGHTS_PATH_NO_TOP = {
-    'rgb_kinetics_only' : 'https://github.com/dlpbc/keras-kinetics-i3d/releases/download/v0.1/rgb_inception_i3d_kinetics_only_tf_dim_ordering_tf_kernels_no_top.h5',
-    'flow_kinetics_only' : 'https://github.com/dlpbc/keras-kinetics-i3d/releases/download/v0.1/flow_inception_i3d_kinetics_only_tf_dim_ordering_tf_kernels_no_top.h5',
-    'rgb_imagenet_and_kinetics' : 'https://github.com/dlpbc/keras-kinetics-i3d/releases/download/v0.1/rgb_inception_i3d_imagenet_and_kinetics_tf_dim_ordering_tf_kernels_no_top.h5',
-    'flow_imagenet_and_kinetics' : 'https://github.com/dlpbc/keras-kinetics-i3d/releases/download/v0.1/flow_inception_i3d_imagenet_and_kinetics_tf_dim_ordering_tf_kernels_no_top.h5',
+    'rgb_kinetics_only' : 'https://github.com/dlpbc/keras-kinetics-i3d/releases/download/v0.2/rgb_inception_i3d_kinetics_only_tf_dim_ordering_tf_kernels_no_top.h5',
+    'flow_kinetics_only' : 'https://github.com/dlpbc/keras-kinetics-i3d/releases/download/v0.2/flow_inception_i3d_kinetics_only_tf_dim_ordering_tf_kernels_no_top.h5',
+    'rgb_imagenet_and_kinetics' : 'https://github.com/dlpbc/keras-kinetics-i3d/releases/download/v0.2/rgb_inception_i3d_imagenet_and_kinetics_tf_dim_ordering_tf_kernels_no_top.h5',
+    'flow_imagenet_and_kinetics' : 'https://github.com/dlpbc/keras-kinetics-i3d/releases/download/v0.2/flow_inception_i3d_imagenet_and_kinetics_tf_dim_ordering_tf_kernels_no_top.h5'
 }
+
+
+def _obtain_input_shape(input_shape,
+                        default_frame_size,
+                        min_frame_size,
+                        default_num_frames,
+                        min_num_frames,
+                        data_format,
+                        require_flatten,
+                        weights=None):
+    """Internal utility to compute/validate the model's input shape.
+    (Adapted from `keras/applications/imagenet_utils.py`)
+
+    # Arguments
+        input_shape: either None (will return the default network input shape),
+            or a user-provided shape to be validated.
+        default_frame_size: default input frames(images) width/height for the model.
+        min_frame_size: minimum input frames(images) width/height accepted by the model.
+        default_num_frames: default input number of frames(images) for the model.
+        min_num_frames: minimum input number of frames accepted by the model.
+        data_format: image data format to use.
+        require_flatten: whether the model is expected to
+            be linked to a classifier via a Flatten layer.
+        weights: one of `None` (random initialization)
+            or 'kinetics_only' (pre-training on Kinetics dataset).
+            or 'imagenet_and_kinetics' (pre-training on ImageNet and Kinetics datasets).
+            If weights='kinetics_only' or weights=='imagenet_and_kinetics' then
+            input channels must be equal to 3.
+
+    # Returns
+        An integer shape tuple (may include None entries).
+
+    # Raises
+        ValueError: in case of invalid argument values.
+    """
+    if weights != 'kinetics_only' and weights != 'imagenet_and_kinetics' and input_shape and len(input_shape) == 4:
+        if data_format == 'channels_first':
+            if input_shape[0] not in {1, 3}:
+                warnings.warn(
+                    'This model usually expects 1 or 3 input channels. '
+                    'However, it was passed an input_shape with ' +
+                    str(input_shape[0]) + ' input channels.')
+            default_shape = (input_shape[0], default_num_frames, default_frame_size, default_frame_size)
+        else:
+            if input_shape[-1] not in {1, 3}:
+                warnings.warn(
+                    'This model usually expects 1 or 3 input channels. '
+                    'However, it was passed an input_shape with ' +
+                    str(input_shape[-1]) + ' input channels.')
+            default_shape = (default_num_frames, default_frame_size, default_frame_size, input_shape[-1])
+    else:
+        if data_format == 'channels_first':
+            default_shape = (3, default_num_frames, default_frame_size, default_frame_size)
+        else:
+            default_shape = (default_num_frames, default_frame_size, default_frame_size, 3)
+    if (weights == 'kinetics_only' or weights == 'imagenet_and_kinetics') and require_flatten:
+        if input_shape is not None:
+            if input_shape != default_shape:
+                raise ValueError('When setting`include_top=True` '
+                                 'and loading `imagenet` weights, '
+                                 '`input_shape` should be ' +
+                                 str(default_shape) + '.')
+        return default_shape
+
+    if input_shape:
+        if data_format == 'channels_first':
+            if input_shape is not None:
+                if len(input_shape) != 4:
+                    raise ValueError(
+                        '`input_shape` must be a tuple of four integers.')
+                if input_shape[0] != 3 and (weights == 'kinetics_only' or weights == 'imagenet_and_kinetics'):
+                    raise ValueError('The input must have 3 channels; got '
+                                     '`input_shape=' + str(input_shape) + '`')
+
+                if input_shape[1] is not None and input_shape[1] < min_num_frames:
+                    raise ValueError('Input number of frames must be at least ' +
+                                     str(min_num_frames) + '; got '
+                                     '`input_shape=' + str(input_shape) + '`')
+
+                if ((input_shape[2] is not None and input_shape[2] < min_frame_size) or
+                   (input_shape[3] is not None and input_shape[3] < min_frame_size)):
+                    raise ValueError('Input size must be at least ' +
+                                     str(min_frame_size) + 'x' + str(min_frame_size) + '; got '
+                                     '`input_shape=' + str(input_shape) + '`')
+        else:
+            if input_shape is not None:
+                if len(input_shape) != 4:
+                    raise ValueError(
+                        '`input_shape` must be a tuple of four integers.')
+                if input_shape[-1] != 3 and (weights == 'kinetics_only' or weights == 'imagenet_and_kinetics'):
+                    raise ValueError('The input must have 3 channels; got '
+                                     '`input_shape=' + str(input_shape) + '`')
+
+                if input_shape[0] is not None and input_shape[0] < min_num_frames:
+                    raise ValueError('Input number of frames must be at least ' +
+                                     str(min_num_frames) + '; got '
+                                     '`input_shape=' + str(input_shape) + '`')
+
+                if ((input_shape[1] is not None and input_shape[1] < min_frame_size) or
+                   (input_shape[2] is not None and input_shape[2] < min_frame_size)):
+                    raise ValueError('Input size must be at least ' +
+                                     str(min_frame_size) + 'x' + str(min_frame_size) + '; got '
+                                     '`input_shape=' + str(input_shape) + '`')
+    else:
+        if require_flatten:
+            input_shape = default_shape
+        else:
+            if data_format == 'channels_first':
+                input_shape = (3, None, None, None)
+            else:
+                input_shape = (None, None, None, 3)
+    if require_flatten:
+        if None in input_shape:
+            raise ValueError('If `include_top` is True, '
+                             'you should specify a static `input_shape`. '
+                             'Got `input_shape=' + str(input_shape) + '`')
+    return input_shape
 
 
 def conv3d_bn(x,
@@ -73,6 +190,9 @@ def conv3d_bn(x,
         num_col: width of the convolution kernel.
         padding: padding mode in `Conv3D`.
         strides: strides in `Conv3D`.
+        use_bias: use bias or not  
+        use_activation_fn: use an activation function or not.
+        use_bn: use batch normalization or not.
         name: name of the ops; will become `name + '_conv'`
             for the convolution and `name + '_bn'` for the
             batch norm layer.
@@ -114,7 +234,7 @@ def Inception_Inflated3d(include_top=True,
                 dropout_prob=0.0,
                 endpoint_logit=True,
                 classes=400):
-    """Instantiates the Inflated Inception v1 architecture.
+    """Instantiates the Inflated 3D Inception v1 architecture.
 
     Optionally loads weights pre-trained
     on Kinetics. Note that when using TensorFlow,
@@ -125,13 +245,14 @@ def Inception_Inflated3d(include_top=True,
     TensorFlow and Theano. The data format
     convention used by the model is the one
     specified in your Keras config file.
-    Note that the default input image size for this model is 299x299.
+    Note that the default input frame(image) size for this model is 224x224.
 
     # Arguments
-        include_top: whether to include the fully-connected
+        include_top: whether to include the the classification 
             layer at the top of the network.
         weights: one of `None` (random initialization)
-            or 'imagenet' (pre-training on ImageNet).
+            or 'kinetics_only' (pre-training on Kinetics dataset only).
+            or 'imagenet_and_kinetics' (pre-training on ImageNet and Kinetics datasets).
         input_tensor: optional Keras tensor (i.e. output of `layers.Input()`)
             to use as image input for the model.
         input_shape: optional shape tuple, only to be specified
@@ -139,18 +260,23 @@ def Inception_Inflated3d(include_top=True,
             has to be `(NUM_FRAMES, 224, 224, 3)` (with `channels_last` data format)
             or `(NUM_FRAMES, 3, 224, 224)` (with `channels_first` data format).
             It should have exactly 3 inputs channels.
-            Width and height should be no smaller than 139.
-            Also, NUM_FRAMES should be no smaller than 10. The authors used 64
+            NUM_FRAMES should be no smaller than 8. The authors used 64
             frames per example for training and testing on kinetics dataset
+            Also, Width and height should be no smaller than 32.
             E.g. `(64, 150, 150, 3)` would be one valid value.
-        dropout_prob: Optional dropout probability applied in dropout layer
-            after global average pooling layer. 0.0 means no dropout is applied,
-            1.0 means dropout is applied to all features.
-        endpoint_logit: Optional boolean that specifies whether the model's
-            computation should end at producing logits or go further to apply
-            softmax to get the class probabilities prediction
-            - `True` end model computation at logit output
+        dropout_prob: optional, dropout probability applied in dropout layer
+            after global average pooling layer. 
+            0.0 means no dropout is applied, 1.0 means dropout is applied to all features.
+            Note: Since Dropout is applied just before the classification
+            layer, it is only useful when `include_top` is set to True.
+        endpoint_logit: (boolean) optional. If True, the model's forward pass
+            will end at producing logits. Otherwise, softmax is applied after producing
+            the logits to produce the class probabilities prediction. Setting this parameter 
+            to True is particularly useful when you want to combine results of rgb model
+            and optical flow model.
+            - `True` end model forward pass at logit output
             - `False` go further after logit to produce softmax predictions
+            Note: This parameter is only useful when `include_top` is set to True.
         classes: optional number of classes to classify images
             into, only to be specified if `include_top` is True, and
             if no `weights` argument is specified.
@@ -165,20 +291,23 @@ def Inception_Inflated3d(include_top=True,
     if not (weights in WEIGHTS_NAME or weights is None or os.path.exists(weights)):
         raise ValueError('The `weights` argument should be either '
                          '`None` (random initialization) or %s' % 
-                         str([name for name in WEIGHTS_NAME])) 
+                         str(WEIGHTS_NAME) + ' ' 
+                         'or a valid path to a file containing `weights` values')
 
     if weights in WEIGHTS_NAME and include_top and classes != 400:
         raise ValueError('If using `weights` as one of these %s, with `include_top`'
                          ' as true, `classes` should be 400' % str(WEIGHTS_NAME))
 
     # Determine proper input shape
-    #input_shape = _obtain_input_shape(
-    #    input_shape,
-    #    default_size=224, # shape (64, 224, 224, 3)
-    #    min_size=139, # shape (8, 32, 32, 3)
-    #    data_format=K.image_data_format(),
-    #    require_flatten=include_top,
-    #    weights=weights)
+    input_shape = _obtain_input_shape(
+        input_shape,
+        default_frame_size=224, 
+        min_frame_size=32, 
+        default_num_frames=64,
+        min_num_frames=8,
+        data_format=K.image_data_format(),
+        require_flatten=include_top,
+        weights=weights)
 
     if input_tensor is None:
         img_input = Input(shape=input_shape)
@@ -383,7 +512,11 @@ def Inception_Inflated3d(include_top=True,
         if not endpoint_logit:
             x = Activation('softmax', name='prediction')(x)
     else:
-        x = AveragePooling3D((2, 7, 7), strides=(1, 1, 1), padding='valid', name='global_avg_pool')(x)
+        h = int(x.shape[2])
+        w = int(x.shape[3])
+        x = AveragePooling3D((2, h, w), strides=(1, 1, 1), padding='valid', name='global_avg_pool')(x)
+
+
 
     inputs = img_input
     # create model
@@ -394,41 +527,37 @@ def Inception_Inflated3d(include_top=True,
         if weights == WEIGHTS_NAME[0]:   # rgb_kinetics_only
             if include_top:
                 weights_url = WEIGHTS_PATH['rgb_kinetics_only']
-                model_name = 'i3d_rgb_kinetics_only.h5'
+                model_name = 'i3d_inception_rgb_kinetics_only.h5'
             else:
                 weights_url = WEIGHTS_PATH_NO_TOP['rgb_kinetics_only']
-                model_name = 'i3d_rgb_kinetics_only_no_top.h5'
-               
+                model_name = 'i3d_inception_rgb_kinetics_only_no_top.h5'
+
         elif weights == WEIGHTS_NAME[1]: # flow_kinetics_only
             if include_top:
                 weights_url = WEIGHTS_PATH['flow_kinetics_only']
-                model_name = 'i3d_flow_kinetics_only.h5'
+                model_name = 'i3d_inception_flow_kinetics_only.h5'
             else:
                 weights_url = WEIGHTS_PATH_NO_TOP['flow_kinetics_only']
-                model_name = 'i3d_flow_kinetics_only_no_top.h5'
-               
+                model_name = 'i3d_inception_flow_kinetics_only_no_top.h5'
+
         elif weights == WEIGHTS_NAME[2]: # rgb_imagenet_and_kinetics
             if include_top:
                 weights_url = WEIGHTS_PATH['rgb_imagenet_and_kinetics']
-                model_name = 'i3d_rgb_imagenet_and_kinetics.h5'
+                model_name = 'i3d_inception_rgb_imagenet_and_kinetics.h5'
             else:
                 weights_url = WEIGHTS_PATH_NO_TOP['rgb_imagenet_and_kinetics']
-                model_name = 'i3d_rgb_imagenet_and_kinetics_no_top.h5'
+                model_name = 'i3d_inception_rgb_imagenet_and_kinetics_no_top.h5'
 
         elif weights == WEIGHTS_NAME[3]: # flow_imagenet_and_kinetics
             if include_top:
                 weights_url = WEIGHTS_PATH['flow_imagenet_and_kinetics']
-                model_name = 'i3d_flow_imagenet_and_kinetics.h5'
+                model_name = 'i3d_inception_flow_imagenet_and_kinetics.h5'
             else:
                 weights_url = WEIGHTS_PATH_NO_TOP['flow_imagenet_and_kinetics']
-                model_name = 'i3d_flow_imagenet_and_kinetics_no_top.h5'
-        
-        downloaded_weights_path = get_file(model_name,
-                                           weights_url,
-                                           cache_subdir='models')
-        
-        model.load_weights(downloaded_weights_path)
+                model_name = 'i3d_inception_flow_imagenet_and_kinetics_no_top.h5'
 
+        downloaded_weights_path = get_file(model_name, weights_url, cache_subdir='models')
+        model.load_weights(downloaded_weights_path)
 
         if K.backend() == 'theano':
             layer_utils.convert_all_kernels_in_model(model)
@@ -446,7 +575,4 @@ def Inception_Inflated3d(include_top=True,
     elif weights is not None:
         model.load_weights(weights)
 
-
-
     return model
-
